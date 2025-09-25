@@ -34,23 +34,16 @@
             transition: background-image 0.8s ease-in-out;
         }
         
-        /* [BARU] Class sementara untuk memicu animasi zoom */
         body.background-changing {
             animation: backgroundZoom 0.8s ease-in-out forwards;
         }
 
-        /* [BARU] Keyframes untuk animasi zoom-in pada background */
         @keyframes backgroundZoom {
-            from {
-                background-size: 110% auto;
-            }
-            to {
-                background-size: 100% auto;
-            }
+            from { background-size: 110% auto; }
+            to { background-size: 100% auto; }
         }
         
-        /* Sisa CSS lainnya tetap sama */
-        .hero-section { padding: 100px 0; background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)); text-align: center; }
+        .hero-section { padding: 80px 0; background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)); text-align: center; }
         .hero-section .lead { color: var(--slate); max-width: 600px; margin: 1rem auto 0; }
         .hero-section .display-4 { color: var(--light-slate); }
         .calculator-card { background: rgba(23, 42, 69, 0.85); border-radius: 15px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(100, 255, 218, 0.2); transition: box-shadow 0.3s ease; }
@@ -88,17 +81,21 @@
     <div class="hero-section">
         <div class="container">
             <h1 class="display-4 fw-bold animate-on-load">Tarif Transportasi</h1>
-            <p class="lead animate-on-load">Gunakan model prediktif kami untuk mendapatkan estimasi tarif perjalanan Anda secara akurat dan transparan.</p>
+            <p class="lead animate-on-load mb-4">Gunakan model prediktif kami untuk mendapatkan estimasi tarif perjalanan Anda secara akurat dan transparan.</p>
+            
+            <a href="{{ url('/') }}" class="btn btn-outline-secondary animate-on-load" style="animation-delay: 0.2s;">
+                <i class="fas fa-arrow-left me-2"></i>Kembali ke Dashboard
+            </a>
         </div>
     </div>
 
     <div class="container my-5">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="calculator-card animate-on-load">
+                <div class="calculator-card animate-on-load" style="animation-delay: 0.4s;">
                     <h2 class="text-center mb-4 card-title">Mulai Prediksi Tarif</h2>
                     <form id="calculatorForm">
-                        <div class="row g-4">
+                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label for="daerahBaseline" class="form-label"><i class="fas fa-map-pin me-2"></i>Daerah Baseline</label>
                                 <select class="form-select" id="daerahBaseline" required>
@@ -175,6 +172,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Sisa JavaScript tidak ada perubahan
         const form = document.getElementById('calculatorForm');
         const hasilPrediksi = document.getElementById('hasilPrediksi');
         const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
@@ -182,39 +180,28 @@
         const requiredInputs = form.querySelectorAll('[required]');
         const tooltipTriggerEl = document.querySelector('[data-bs-toggle="tooltip"]');
         const tooltip = new bootstrap.Tooltip(tooltipTriggerEl);
-        
         const daerahBaselineSelect = document.getElementById('daerahBaseline');
         const defaultBg = 'https://i.ibb.co/6g2Xf5F/futuristic-city-transportation-network.jpg';
         const monasBg = "{{ asset('images/monas.jpg') }}";
         const gedungSateBg = "{{ asset('images/gedung-sate.jpg') }}";
-
-       
         let isFirstSelection = true;
-
         daerahBaselineSelect.addEventListener('change', function() {
             const selectedCity = this.value;
             let newBg = defaultBg;
-
             if (selectedCity === 'jakarta') {
                 newBg = monasBg;
             } else if (selectedCity === 'bandung') {
                 newBg = gedungSateBg;
             }
-            
-           
             document.body.style.backgroundImage = `url('${newBg}')`;
-
             if (isFirstSelection) {
                 document.body.classList.add('background-changing');
                 isFirstSelection = false;
-
-            
                 setTimeout(() => {
                     document.body.classList.remove('background-changing');
                 }, 800); 
             }
         });
-
         function validateForm() {
             let allFilled = true;
             requiredInputs.forEach(input => {
@@ -223,25 +210,20 @@
             submitButton.disabled = !allFilled;
             if(allFilled) { tooltip.disable(); } else { tooltip.enable(); }
         }
-
         requiredInputs.forEach(input => {
             input.addEventListener('input', validateForm);
         });
-
         document.addEventListener('DOMContentLoaded', () => {
             welcomeModal.show();
         });
-
         form.addEventListener('submit', function(event) {
             event.preventDefault(); 
             hasilPrediksi.classList.add('show'); 
         });
-
         form.addEventListener('reset', function() {
             hasilPrediksi.classList.remove('show');
             setTimeout(validateForm, 0);
             document.body.style.backgroundImage = `url('${defaultBg}')`;
-            
             isFirstSelection = true;
         });
     </script>

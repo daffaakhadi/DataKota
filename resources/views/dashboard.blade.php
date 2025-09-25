@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Proyek | Kalkulator Tarif</title>
+    <title>Hitung Tarif Transportasi</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,6 +85,7 @@
 
         .section {
             padding: 80px 0;
+            overflow-x: hidden; 
         }
         .section-title {
             color: var(--light-slate);
@@ -140,6 +141,10 @@
             width: 100%;
             height: auto;
             border-bottom: 3px solid var(--accent-cyan);
+            transition: transform 0.3s ease;
+        }
+        .project-showcase:hover img {
+            transform: scale(1.03); 
         }
 
         footer {
@@ -148,6 +153,30 @@
             text-align: center;
             color: var(--slate);
         }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated-item {
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: translateY(30px);
+        }
+
+        .animated-item.in-view {
+            opacity: 1;
+            transform: translateY(0);
+            animation: none;
+        }
+
     </style>
 </head>
 <body>
@@ -166,8 +195,8 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#tentang">Tentang Proyek</a>
                     </li>
-                  <li class="nav-item">
-                     <a class="nav-link" href="{{ url('/hitungtarif') }}">Hitung Tarif</a>
+                    <li class="nav-item">
+                       <a class="nav-link" href="{{ url('/hitungtarif') }}">Hitung Tarif</a>
                     </li>
                 </ul>
             </div>
@@ -176,31 +205,31 @@
 
     <header id="home" class="hero">
         <div class="container">
-            <h1 class="animate-on-load">Hitung Tarif Transportasi</h1>
-            <p class="animate-on-load" style="animation-delay: 0.2s;">Sebuah aplikasi web interaktif yang dibangun dengan Laravel untuk memprediksi tarif transportasi online berdasarkan berbagai faktor data.</p>
-            <a href="#kalkulator" class="btn btn-primary-custom animate-on-load" style="animation-delay: 0.4s;">Lihat Proyek</a>
+            <h1 class="animated-item">Hitung Tarif Transportasi</h1>
+            <p class="animated-item" style="--delay: 0.2s;">Sebuah aplikasi web interaktif yang dibangun dengan Laravel untuk memprediksi tarif transportasi online berdasarkan berbagai faktor data.</p>
+            <a href="#kalkulator" class="btn btn-primary-custom animated-item" style="--delay: 0.4s;">Lihat Proyek</a>
         </div>
     </header>
 
     <section id="tentang" class="section">
         <div class="container">
-            <h2 class="section-title">Tentang Proyek Ini</h2>
+            <h2 class="section-title animated-item">Tentang Proyek Ini</h2>
             <div class="row g-4">
-                <div class="col-md-4">
+                <div class="col-md-4 animated-item" style="--delay: 0.1s;">
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-database"></i></div>
                         <h5>Kalkulasi Berbasis Data</h5>
                         <p>Menggunakan data riil seperti UMR dan tingkat kemacetan untuk memberikan hasil prediksi yang relevan.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 animated-item" style="--delay: 0.2s;">
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fas fa-cogs"></i></div>
                         <h5>Fitur Interaktif</h5>
                         <p>Dilengkapi validasi form, notifikasi, dan latar belakang dinamis yang berubah sesuai input pengguna.</p>
                     </div>
                 </div>
-                 <div class="col-md-4">
+                <div class="col-md-4 animated-item" style="--delay: 0.3s;">
                     <div class="feature-card">
                         <div class="feature-icon"><i class="fab fa-laravel"></i></div>
                         <h5>Dibangun dengan Laravel</h5>
@@ -213,11 +242,11 @@
 
     <section id="kalkulator" class="section" style="background-color: var(--dark-blue);">
         <div class="container">
-            <h2 class="section-title">Showcase Aplikasi</h2>
+            <h2 class="section-title animated-item">Showcase Aplikasi</h2>
             <div class="row justify-content-center">
-                <div class="col-lg-10">
+                <div class="col-lg-10 animated-item" style="--delay: 0.2s;">
                     <div class="project-showcase text-center">
-                       <a href="{{ url('/kalkulator') }}" target="_blank">
+                       <a href="{{ url('/hitungtarif') }}" target="_blank">
                         <img src="{{ asset('images/showcase.png') }}" alt="Preview Aplikasi Kalkulator">
                         </a>
                         <div class="p-4">
@@ -235,5 +264,34 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const animatedItems = document.querySelectorAll('.animated-item');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    
+                    if (entry.isIntersecting) {
+                        
+                        entry.target.classList.add('in-view');
+                    } else {
+                        // Jika elemen keluar dari layar, hapus class
+                        entry.target.classList.remove('in-view');
+                    }
+                });
+            }, {
+                threshold: 0.1 
+            });
+
+            animatedItems.forEach(item => {
+                
+                if (item.getBoundingClientRect().top < window.innerHeight) {
+                    item.classList.add('in-view');
+                }
+                observer.observe(item);
+            });
+        });
+    </script>
 </body>
 </html>

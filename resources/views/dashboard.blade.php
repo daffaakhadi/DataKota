@@ -55,9 +55,28 @@
             color: var(--slate);
             font-weight: 500;
             transition: color 0.3s ease;
+            position: relative;
+            padding-bottom: 0.5rem;
+            margin: 0 0.5rem;
         }
         .nav-link:hover, .nav-link.active {
             color: var(--accent-cyan);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent-cyan);
+            transition: width 0.3s ease-in-out;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 70%;
         }
 
         .hero {
@@ -124,7 +143,7 @@
             transition: transform 0.3s ease, border-color 0.3s ease;
             position: relative; 
             z-index: 1;
-            overflow: hidden; /* [BARU] Penting untuk memotong cahaya yang berputar */
+            overflow: hidden;
         }
         
         .feature-card:hover {
@@ -132,7 +151,6 @@
             border-color: var(--accent-cyan);
         }
 
-        /* [BARU] Pseudo-element sebagai sumber cahaya yang berputar di dalam kartu */
         .feature-card::before {
             content: '';
             position: absolute;
@@ -146,7 +164,6 @@
             transition: opacity 0.4s ease-in-out;
         }
 
-        /* [BARU] Tampilkan dan jalankan animasi saat hover */
         .feature-card:hover::before {
             opacity: 1;
             animation: rotate-light 4s linear infinite;
@@ -193,7 +210,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* [BARU] Keyframes untuk animasi putaran cahaya di dalam kartu */
         @keyframes rotate-light {
             from {
                 transform: rotate(0deg);
@@ -229,10 +245,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#home">Home</a>
+                        <a class="nav-link" href="#home">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#tentang">Tentang Proyek</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#showcase">Showcase</a>
                     </li>
                     <li class="nav-item">
                        <a class="nav-link" href="{{ url('/hitungtarif') }}">Hitung Tarif</a>
@@ -246,7 +265,7 @@
         <div class="container">
             <h1 class="animated-item">Hitung Tarif Transportasi</h1>
             <p class="animated-item" style="--delay: 0.2s;">Sebuah aplikasi web interaktif yang dibangun dengan Laravel untuk memprediksi tarif transportasi online berdasarkan berbagai faktor data.</p>
-            <a href="#kalkulator" class="btn btn-primary-custom animated-item" style="--delay: 0.4s;">Lihat Proyek</a>
+            <a href="#showcase" class="btn btn-primary-custom animated-item" style="--delay: 0.4s;">Lihat Proyek</a>
         </div>
     </header>
 
@@ -279,7 +298,7 @@
         </div>
     </section>
 
-    <section id="kalkulator" class="section" style="background-color: var(--dark-blue);">
+    <section id="showcase" class="section" style="background-color: var(--dark-blue);">
         <div class="container">
             <h2 class="section-title animated-item">Showcase Aplikasi</h2>
             <div class="row justify-content-center">
@@ -308,9 +327,9 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // Kode untuk animasi fade-in saat scroll
             const animatedItems = document.querySelectorAll('.animated-item');
-
-            const observer = new IntersectionObserver((entries) => {
+            const animationObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('in-view');
@@ -321,73 +340,51 @@
             }, {
                 threshold: 0.1 
             });
-
             animatedItems.forEach(item => {
                 if (item.getBoundingClientRect().top < window.innerHeight) {
                     item.classList.add('in-view');
                 }
-                observer.observe(item);
+                animationObserver.observe(item);
+            });
+
+            // Kode untuk navigasi otomatis (scrollspy)
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            const sections = document.querySelectorAll('header, section[id]');
+            const observerOptions = {
+                rootMargin: '-80px 0px 0px 0px',
+                threshold: 0.4
+            };
+            const navObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        const activeLink = document.querySelector(`.navbar-nav a[href="#${id}"]`);
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        if (activeLink) {
+                            activeLink.classList.add('active');
+                        }
+                    }
+                });
+            }, observerOptions);
+            sections.forEach(section => {
+                navObserver.observe(section);
             });
 
             tsParticles.load("particles-container", {
                 fpsLimit: 60,
                 particles: {
-                    number: {
-                        value: 80,
-                        density: {
-                            enable: true,
-                            value_area: 800
-                        }
-                    },
-                    color: {
-                        value: "#64ffda" 
-                    },
-                    shape: {
-                        type: "circle",
-                    },
-                    opacity: {
-                        value: 0.5,
-                        random: true,
-                    },
-                    size: {
-                        value: 3,
-                        random: true,
-                    },
-                    links: {
-                        enable: true,
-                        distance: 150,
-                        color: "#8892b0", 
-                        opacity: 0.4,
-                        width: 1
-                    },
-                    move: {
-                        enable: true,
-                        speed: 1,
-                        direction: "none",
-                        random: false,
-                        straight: false,
-                        out_mode: "out",
-                        bounce: false,
-                    }
+                    number: { value: 80, density: { enable: true, value_area: 800 }},
+                    color: { value: "#64ffda" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    links: { enable: true, distance: 150, color: "#8892b0", opacity: 0.4, width: 1 },
+                    move: { enable: true, speed: 1, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
                 },
                 interactivity: {
                     detect_on: "canvas",
-                    events: {
-                        onhover: {
-                            enable: true,
-                            mode: "repulse"
-                        },
-                        onclick: {
-                            enable: false,
-                        },
-                        resize: true
-                    },
-                    modes: {
-                        repulse: {
-                            distance: 100,
-                            duration: 0.4
-                        }
-                    }
+                    events: { onhover: { enable: true, mode: "repulse" }, onclick: { enable: false }, resize: true },
+                    modes: { repulse: { distance: 100, duration: 0.4 } }
                 },
                 detectRetina: true
             });

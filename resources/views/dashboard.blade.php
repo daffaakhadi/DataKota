@@ -31,6 +31,15 @@
             color: var(--light-slate);
         }
 
+        #particles-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
         .navbar {
             background-color: rgba(10, 25, 47, 0.85);
             backdrop-filter: blur(10px);
@@ -113,11 +122,36 @@
             text-align: center;
             height: 100%;
             transition: transform 0.3s ease, border-color 0.3s ease;
+            position: relative; 
+            z-index: 1;
+            overflow: hidden; /* [BARU] Penting untuk memotong cahaya yang berputar */
         }
+        
         .feature-card:hover {
             transform: translateY(-10px);
             border-color: var(--accent-cyan);
         }
+
+        /* [BARU] Pseudo-element sebagai sumber cahaya yang berputar di dalam kartu */
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            z-index: -1;
+            background: radial-gradient(circle, rgba(100, 255, 218, 0.2) 0%, transparent 40%);
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        /* [BARU] Tampilkan dan jalankan animasi saat hover */
+        .feature-card:hover::before {
+            opacity: 1;
+            animation: rotate-light 4s linear infinite;
+        }
+
         .feature-icon {
             font-size: 2.5rem;
             color: var(--accent-cyan);
@@ -155,13 +189,17 @@
         }
 
         @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* [BARU] Keyframes untuk animasi putaran cahaya di dalam kartu */
+        @keyframes rotate-light {
             from {
-                opacity: 0;
-                transform: translateY(30px);
+                transform: rotate(0deg);
             }
             to {
-                opacity: 1;
-                transform: translateY(0);
+                transform: rotate(360deg);
             }
         }
 
@@ -176,10 +214,11 @@
             transform: translateY(0);
             animation: none;
         }
-
     </style>
 </head>
 <body>
+
+    <div id="particles-container"></div>
 
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
@@ -250,8 +289,8 @@
                         <img src="{{ asset('images/showcase.png') }}" alt="Preview Aplikasi Kalkulator">
                         </a>
                         <div class="p-4">
-                             <p class="lead text-white">Klik gambar di atas untuk mencoba aplikasi secara langsung.</p>
-                             <a href="{{ url('/hitungtarif') }}" target="_blank" class="btn btn-primary-custom mt-2">Buka Aplikasi di Tab Baru</a>
+                              <p class="lead text-white">Klik gambar di atas untuk mencoba aplikasi secara langsung.</p>
+                              <a href="{{ url('/hitungtarif') }}" target="_blank" class="btn btn-primary-custom mt-2">Buka Aplikasi di Tab Baru</a>
                         </div>
                     </div>
                 </div>
@@ -265,18 +304,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const animatedItems = document.querySelectorAll('.animated-item');
 
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    
                     if (entry.isIntersecting) {
-                        
                         entry.target.classList.add('in-view');
                     } else {
-                        // Jika elemen keluar dari layar, hapus class
                         entry.target.classList.remove('in-view');
                     }
                 });
@@ -285,11 +323,73 @@
             });
 
             animatedItems.forEach(item => {
-                
                 if (item.getBoundingClientRect().top < window.innerHeight) {
                     item.classList.add('in-view');
                 }
                 observer.observe(item);
+            });
+
+            tsParticles.load("particles-container", {
+                fpsLimit: 60,
+                particles: {
+                    number: {
+                        value: 80,
+                        density: {
+                            enable: true,
+                            value_area: 800
+                        }
+                    },
+                    color: {
+                        value: "#64ffda" 
+                    },
+                    shape: {
+                        type: "circle",
+                    },
+                    opacity: {
+                        value: 0.5,
+                        random: true,
+                    },
+                    size: {
+                        value: 3,
+                        random: true,
+                    },
+                    links: {
+                        enable: true,
+                        distance: 150,
+                        color: "#8892b0", 
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1,
+                        direction: "none",
+                        random: false,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false,
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: {
+                            enable: true,
+                            mode: "repulse"
+                        },
+                        onclick: {
+                            enable: false,
+                        },
+                        resize: true
+                    },
+                    modes: {
+                        repulse: {
+                            distance: 100,
+                            duration: 0.4
+                        }
+                    }
+                },
+                detectRetina: true
             });
         });
     </script>

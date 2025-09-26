@@ -48,8 +48,52 @@
         .hero-section { padding: 80px 0; background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)); text-align: center; }
         .hero-section .lead { color: var(--slate); max-width: 600px; margin: 1rem auto 0; }
         .hero-section .display-4 { color: var(--light-slate); }
-        .calculator-card { background: rgba(23, 42, 69, 0.85); border-radius: 15px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(100, 255, 218, 0.2); transition: box-shadow 0.3s ease; }
+        .calculator-card { 
+            background: rgba(23, 42, 69, 0.85); 
+            border-radius: 15px; 
+            padding: 2.5rem; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(100, 255, 218, 0.2); 
+            transition: box-shadow 0.3s ease; 
+            position: relative;
+        }
         .calculator-card:hover { box-shadow: 0 0 25px rgba(100, 255, 218, 0.1); }
+        
+        .calculator-card::before, .calculator-card::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-color: var(--accent-cyan);
+            border-style: solid;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .calculator-card::before {
+            top: 15px; left: 15px;
+            border-width: 2px 0 0 2px;
+            transform: translate(-10px, -10px);
+        }
+        .calculator-card::after {
+            bottom: 15px; right: 15px;
+            border-width: 0 2px 2px 0;
+            transform: translate(10px, 10px);
+        }
+        .calculator-card:hover::before, .calculator-card:hover::after {
+            opacity: 1;
+            transform: translate(0, 0);
+        }
+
+        #particles-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -10;
+        }
+        
         .card-title { color: var(--light-slate); font-weight: 600; }
         .form-label { font-weight: 500; color: var(--slate); margin-bottom: 0.5rem; }
         .form-control, .form-select { background-color: var(--dark-blue); color: var(--light-slate); border: 1px solid #2c4974; border-radius: 8px; padding: 12px; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
@@ -80,7 +124,6 @@
         .hero-section p.animate-on-load { animation-delay: 0.2s; }
         .calculator-card.animate-on-load { animation-delay: 0.4s; }
 
-        /* [BARU] Style untuk Kustomisasi Tur */
         .introjs-tooltip { background-color: var(--light-blue); color: var(--light-slate); border: 1px solid var(--accent-cyan); border-radius: 8px; }
         .introjs-arrow.top, .introjs-arrow.top-middle, .introjs-arrow.top-right { border-bottom-color: var(--light-blue); }
         .introjs-arrow.bottom, .introjs-arrow.bottom-middle, .introjs-arrow.bottom-right { border-top-color: var(--light-blue); }
@@ -95,6 +138,8 @@
 </head>
 <body>
 
+    <div id="particles-container"></div>
+    
     <div class="hero-section">
         <div class="container">
             <h1 class="display-4 fw-bold animate-on-load">Tarif Transportasi</h1>
@@ -182,110 +227,90 @@
     
     <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     
     <script>
-        // ... (semua variabel const dari kode sebelumnya tetap di sini)
-        const form = document.getElementById('calculatorForm');
-        const hasilPrediksi = document.getElementById('hasilPrediksi');
-        const submitButton = document.getElementById('submitButton');
-        const requiredInputs = form.querySelectorAll('[required]');
-        const tooltipTriggerEl = document.querySelector('[data-bs-toggle="tooltip"]');
-        const tooltip = new bootstrap.Tooltip(tooltipTriggerEl);
-        const daerahBaselineSelect = document.getElementById('daerahBaseline');
-        const daerahHitungSelect = document.getElementById('daerahHitung');
-        const swapButton = document.getElementById('swapButton');
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('calculatorForm');
+            const hasilPrediksi = document.getElementById('hasilPrediksi');
+            const submitButton = document.getElementById('submitButton');
+            const requiredInputs = form.querySelectorAll('[required]');
+            const tooltipTriggerEl = document.querySelector('[data-bs-toggle="tooltip"]');
+            const tooltip = new bootstrap.Tooltip(tooltipTriggerEl);
+            const daerahBaselineSelect = document.getElementById('daerahBaseline');
+            const daerahHitungSelect = document.getElementById('daerahHitung');
+            const swapButton = document.getElementById('swapButton');
+            const startTourButton = document.getElementById('startTourButton');
+            
+            const defaultBg = 'https://i.ibb.co/6g2Xf5F/futuristic-city-transportation-network.jpg';
+            const monasBg = "{{ asset('images/monas.jpg') }}";
+            const gedungSateBg = "{{ asset('images/gedung-sate.jpg') }}";
+            const surabayaBg = "{{ asset('images/surabaya.jpeg') }}";
+            const medanBg = "{{ asset('images/medan.jpeg') }}";
+            const palembangBg = "{{ asset('images/palembang.jpeg') }}";
+            const mockResults = { /* ... data ... */ };
+            let isFirstSelection = true;
+            
+            tsParticles.load("particles-container", {
+                fpsLimit: 60,
+                particles: {
+                    number: { value: 50, density: { enable: true, value_area: 800 } },
+                    color: { value: "#64ffda" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.4, random: true },
+                    size: { value: 2, random: true },
+                    links: { enable: true, distance: 150, color: "#8892b0", opacity: 0.3, width: 1 },
+                    move: { enable: true, speed: 1, direction: "none", out_mode: "out" }
+                },
+                interactivity: {
+                    events: { onhover: { enable: true, mode: "repulse" } },
+                    modes: { repulse: { distance: 100, duration: 0.4 } }
+                },
+                detectRetina: true,
+            });
 
-        // ===== [BARU] Menyeleksi tombol untuk memulai tur =====
-        const startTourButton = document.getElementById('startTourButton');
+            startTourButton.addEventListener('click', function() {
+                introJs().setOptions({
+                    nextLabel: 'Lanjut →',
+                    prevLabel: '← Kembali',
+                    doneLabel: 'Selesai',
+                    exitOnOverlayClick: false,
+                }).start();
+            });
 
-        const defaultBg = 'https://i.ibb.co/6g2Xf5F/futuristic-city-transportation-network.jpg';
-        const monasBg = "{{ asset('images/monas.jpg') }}";
-        const gedungSateBg = "{{ asset('images/gedung-sate.jpg') }}";
-        const surabayaBg = "{{ asset('images/surabaya.jpeg') }}";
-        const medanBg = "{{ asset('images/medan.jpeg') }}";
-        const palembangBg = "{{ asset('images/palembang.jpeg') }}";
-        const mockResults = {
-            bandung: [
-                { city: 'Medan', recommended: 7315, actual: 8000 },
-                { city: 'Palembang', recommended: 8310, actual: 8000 },
-                { city: 'Surabaya', recommended: 8888, actual: 8000 },
-                { city: 'Jakarta', recommended: 12151, actual: 10500 },
-            ],
-            jakarta: [
-                { city: 'Bandung', recommended: 6913, actual: 8000 },
-                { city: 'Medan', recommended: 6321, actual: 8000 },
-                { city: 'Palembang', recommended: 7181, actual: 8000 },
-                { city: 'Surabaya', recommended: 7680, actual: 8000 },
-            ]
-        };
-        let isFirstSelection = true;
-
-        // ===== [LOGIKA BARU UNTUK MEMULAI TUR] =====
-        startTourButton.addEventListener('click', function() {
-            introJs().setOptions({
-                nextLabel: 'Lanjut →',
-                prevLabel: '← Kembali',
-                doneLabel: 'Selesai',
-                exitOnOverlayClick: false, // Mencegah tur tertutup saat klik di luar
-            }).start();
-        });
-
-        // Sisa kode JavaScript lainnya tetap sama
-        function updateDropdownFilters() { /* ... */ }
-        daerahBaselineSelect.addEventListener('change', function() { /* ... */ });
-        daerahHitungSelect.addEventListener('change', function() { /* ... */ });
-        swapButton.addEventListener('click', function() { /* ... */ });
-        function validateForm() { /* ... */ }
-        requiredInputs.forEach(input => { /* ... */ });
-        form.addEventListener('submit', function(event) { /* ... */ });
-        form.addEventListener('reset', function() { /* ... */ });
-
-        // Definisi fungsi yang tidak diubah (untuk kelengkapan)
-        function updateDropdownFilters() {
-            const baselineValue = daerahBaselineSelect.value;
-            const tujuanValue = daerahHitungSelect.value;
-            for (const option of daerahHitungSelect.options) { option.style.display = (option.value === baselineValue && option.value) ? 'none' : 'block'; }
-            for (const option of daerahBaselineSelect.options) { option.style.display = (option.value === tujuanValue && option.value) ? 'none' : 'block'; }
-        }
-        daerahBaselineSelect.addEventListener('change', function() {
-            const selectedCity = this.value; let newBg = defaultBg;
-            if (selectedCity === 'jakarta') newBg = monasBg; else if (selectedCity === 'bandung') newBg = gedungSateBg; else if (selectedCity === 'surabaya') newBg = surabayaBg; else if (selectedCity === 'medan') newBg = medanBg; else if (selectedCity === 'palembang') newBg = palembangBg;
-            document.body.style.backgroundImage = `url('${newBg}')`;
-            if (isFirstSelection) { document.body.classList.add('background-changing'); isFirstSelection = false; setTimeout(() => { document.body.classList.remove('background-changing'); }, 800); }
-            updateDropdownFilters(); validateForm();
-        });
-        daerahHitungSelect.addEventListener('change', function() { updateDropdownFilters(); validateForm(); });
-        swapButton.addEventListener('click', function() {
-            const baselineValue = daerahBaselineSelect.value; const tujuanValue = daerahHitungSelect.value;
-            if (baselineValue && tujuanValue) { daerahBaselineSelect.value = tujuanValue; daerahHitungSelect.value = baselineValue; daerahBaselineSelect.dispatchEvent(new Event('change')); }
-        });
-        function validateForm() {
-            let allFilled = true;
-            requiredInputs.forEach(input => { if (!input.value || input.value === "") { allFilled = false; } });
-            submitButton.disabled = !allFilled;
-            if(allFilled) { tooltip.disable(); } else { tooltip.enable(); }
-        }
-        requiredInputs.forEach(input => { input.addEventListener('input', validateForm); });
-        form.addEventListener('submit', function(event) {
-            event.preventDefault(); 
-            const baselineCity = daerahBaselineSelect.options[daerahBaselineSelect.selectedIndex].text; const tujuanCity = daerahHitungSelect.options[daerahHitungSelect.selectedIndex].text;
-            document.getElementById('result-description').textContent = `Berdasarkan perhitungan dengan ${baselineCity} sebagai kota baseline, berikut adalah perbandingan nilai tarif rekomendasi dan tarif aktual untuk kota tujuan Anda serta beberapa kota lainnya.`;
-            document.getElementById('baseline-city-result').textContent = baselineCity;
-            const tableBody = document.getElementById('result-table-body'); tableBody.innerHTML = '';
-            const resultsData = mockResults[baselineCity.toLowerCase()] || [];
-            if (resultsData.length === 0) { tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-5">Data untuk baseline ${baselineCity} tidak tersedia.</td></tr>`; } else {
-                resultsData.forEach(item => {
-                    const isTargetCity = item.city.toLowerCase() === tujuanCity.toLowerCase(); const rowClass = isTargetCity ? 'table-active' : ''; const fontClass = isTargetCity ? 'fw-bold' : '';
-                    const row = `<tr class="${rowClass}"><td class="${fontClass}">${item.city}</td><td class="text-end ${fontClass}">${item.recommended.toLocaleString('id-ID')}</td><td class="text-end">${item.actual.toLocaleString('id-ID')}</td></tr>`;
-                    tableBody.innerHTML += row;
-                });
+            function updateDropdownFilters() {
+                const baselineValue = daerahBaselineSelect.value;
+                const tujuanValue = daerahHitungSelect.value;
+                for (const option of daerahHitungSelect.options) { option.style.display = (option.value === baselineValue && option.value) ? 'none' : 'block'; }
+                for (const option of daerahBaselineSelect.options) { option.style.display = (option.value === tujuanValue && option.value) ? 'none' : 'block'; }
             }
-            hasilPrediksi.classList.add('show'); 
-        });
-        form.addEventListener('reset', function() {
-            hasilPrediksi.classList.remove('show'); setTimeout(validateForm, 0); document.body.style.backgroundImage = `url('${defaultBg}')`; isFirstSelection = true;
-            for (const option of daerahHitungSelect.options) { option.style.display = 'block'; }
-            for (const option of daerahBaselineSelect.options) { option.style.display = 'block'; }
+            daerahBaselineSelect.addEventListener('change', function() {
+                const selectedCity = this.value; let newBg = defaultBg;
+                if (selectedCity === 'jakarta') newBg = monasBg; else if (selectedCity === 'bandung') newBg = gedungSateBg; else if (selectedCity === 'surabaya') newBg = surabayaBg; else if (selectedCity === 'medan') newBg = medanBg; else if (selectedCity === 'palembang') newBg = palembangBg;
+                document.body.style.backgroundImage = `url('${newBg}')`;
+                if (isFirstSelection) { document.body.classList.add('background-changing'); isFirstSelection = false; setTimeout(() => { document.body.classList.remove('background-changing'); }, 800); }
+                updateDropdownFilters(); validateForm();
+            });
+            daerahHitungSelect.addEventListener('change', function() { updateDropdownFilters(); validateForm(); });
+            swapButton.addEventListener('click', function() {
+                const baselineValue = daerahBaselineSelect.value; const tujuanValue = daerahHitungSelect.value;
+                if (baselineValue && tujuanValue) { daerahBaselineSelect.value = tujuanValue; daerahHitungSelect.value = baselineValue; daerahBaselineSelect.dispatchEvent(new Event('change')); }
+            });
+            function validateForm() {
+                let allFilled = true;
+                requiredInputs.forEach(input => { if (!input.value || input.value === "") { allFilled = false; } });
+                submitButton.disabled = !allFilled;
+                if(allFilled) { tooltip.disable(); } else { tooltip.enable(); }
+            }
+            requiredInputs.forEach(input => { input.addEventListener('input', validateForm); });
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+            });
+            form.addEventListener('reset', function() {
+                hasilPrediksi.classList.remove('show'); setTimeout(validateForm, 0); document.body.style.backgroundImage = `url('${defaultBg}')`; isFirstSelection = true;
+                for (const option of daerahHitungSelect.options) { option.style.display = 'block'; }
+                for (const option of daerahBaselineSelect.options) { option.style.display = 'block'; }
+            });
         });
     </script>
 </body>

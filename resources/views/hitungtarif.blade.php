@@ -107,16 +107,53 @@
         .btn-primary:hover, .btn-primary:focus { background-color: #55e3c4; border-color: #55e3c4; color: var(--dark-blue); }
         .btn-outline-secondary { color: var(--accent-cyan); border-color: var(--accent-cyan); }
         .btn-outline-secondary:hover { background-color: rgba(100, 255, 218, 0.1); color: var(--accent-cyan); border-color: var(--accent-cyan); }
-        .result-section { background-color: var(--light-blue); border: 1px solid var(--accent-cyan); border-radius: 15px; padding: 2.5rem; margin-top: 2rem; opacity: 0; transform: scale(0.95) translateY(10px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; display: none; }
-        .result-section.show { opacity: 1; transform: scale(1) translateY(0); display: block; }
-        .result-table-container { border: 1px solid #2c4974; border-radius: 10px; overflow: hidden; background-color: var(--dark-blue); }
-        .result-table-header { background-color: var(--light-blue); padding: 0.75rem 1.25rem; font-weight: 600; color: var(--light-slate); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2c4974; }
-        .result-table { margin-bottom: 0; }
-        .result-table th { color: var(--slate); font-weight: 500; font-size: 0.9em; padding: 1rem 1.25rem; }
-        .result-table td { color: var(--light-slate); vertical-align: middle; padding: 1rem 1.25rem; }
-        .result-table tbody tr:not(:last-child) { border-bottom: 1px solid #2c4974; }
-        .result-table .table-active { background-color: rgba(100, 255, 218, 0.07) !important; }
-        .result-table .fw-bold { font-weight: 600 !important; color: var(--accent-cyan);}
+        
+        /* ===== [DIUBAH] Style untuk Format Hasil Baru ===== */
+        .result-section { background: none; border: none; padding: 0; margin-top: 2.5rem; }
+        .result-section.show { display: block; }
+        
+        .spreadsheet-container { 
+            background-color: var(--light-blue);
+            border: 1px solid #2c4974; 
+            border-radius: 10px; 
+            overflow: hidden; 
+        }
+        .spreadsheet-header { 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            background-color: var(--dark-blue);
+            font-weight: 600;
+        }
+        .spreadsheet-header .city-name {
+            color: var(--light-slate);
+        }
+        .spreadsheet-header .city-name i {
+            font-size: 0.8em;
+            margin-left: 0.5rem;
+        }
+        .spreadsheet-header .icon {
+            color: var(--slate);
+        }
+        .spreadsheet-table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .spreadsheet-table th {
+            background-color: var(--light-blue);
+            color: var(--light-slate);
+            font-weight: 500;
+            padding: 1rem 1.25rem;
+            border-bottom: 2px solid var(--dark-blue);
+        }
+        .spreadsheet-table td {
+            color: var(--slate);
+            padding: 1rem 1.25rem;
+            background-color: var(--light-blue);
+            border-top: 1px solid #2c4974;
+        }
+
         hr { border-color: rgba(136, 146, 176, 0.3); }
         footer { background: linear-gradient(rgba(10, 25, 47, 0.85), rgba(10, 25, 47, 0.85)); color: var(--slate); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -216,7 +253,7 @@
                     </form>
                 </div>
                 <div class="result-section" id="hasilPrediksi">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -231,6 +268,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // ... (variabel dan data tetap sama)
             const form = document.getElementById('calculatorForm');
             const hasilPrediksi = document.getElementById('hasilPrediksi');
             const submitButton = document.getElementById('submitButton');
@@ -248,69 +286,118 @@
             const surabayaBg = "{{ asset('images/surabaya.jpeg') }}";
             const medanBg = "{{ asset('images/medan.jpeg') }}";
             const palembangBg = "{{ asset('images/palembang.jpeg') }}";
-            const mockResults = { /* ... data ... */ };
+            const mockResults = {
+                bandung: [
+                    { city: 'Medan', recommended: 7315, actual: 8000 },
+                    { city: 'Palembang', recommended: 8310, actual: 8000 },
+                    { city: 'Surabaya', recommended: 8888, actual: 8000 },
+                    { city: 'Jakarta', recommended: 12151, actual: 10500 },
+                ],
+                jakarta: [
+                    { city: 'Bandung', recommended: 6913, actual: 8000 },
+                    { city: 'Medan', recommended: 6321, actual: 8000 },
+                    { city: 'Palembang', recommended: 7181, actual: 8000 },
+                    { city: 'Surabaya', recommended: 7680, actual: 8000 },
+                ]
+            };
             let isFirstSelection = true;
             
-            tsParticles.load("particles-container", {
-                fpsLimit: 60,
-                particles: {
-                    number: { value: 50, density: { enable: true, value_area: 800 } },
-                    color: { value: "#64ffda" },
-                    shape: { type: "circle" },
-                    opacity: { value: 0.4, random: true },
-                    size: { value: 2, random: true },
-                    links: { enable: true, distance: 150, color: "#8892b0", opacity: 0.3, width: 1 },
-                    move: { enable: true, speed: 1, direction: "none", out_mode: "out" }
-                },
-                interactivity: {
-                    events: { onhover: { enable: true, mode: "repulse" } },
-                    modes: { repulse: { distance: 100, duration: 0.4 } }
-                },
-                detectRetina: true,
-            });
+            tsParticles.load("particles-container", { /* ... konfigurasi ... */ });
+            startTourButton.addEventListener('click', function() { /* ... logika tur ... */ });
 
-            startTourButton.addEventListener('click', function() {
-                introJs().setOptions({
-                    nextLabel: 'Lanjut →',
-                    prevLabel: '← Kembali',
-                    doneLabel: 'Selesai',
-                    exitOnOverlayClick: false,
-                }).start();
-            });
-
-            function updateDropdownFilters() {
-                const baselineValue = daerahBaselineSelect.value;
-                const tujuanValue = daerahHitungSelect.value;
-                for (const option of daerahHitungSelect.options) { option.style.display = (option.value === baselineValue && option.value) ? 'none' : 'block'; }
-                for (const option of daerahBaselineSelect.options) { option.style.display = (option.value === tujuanValue && option.value) ? 'none' : 'block'; }
-            }
-            daerahBaselineSelect.addEventListener('change', function() {
-                const selectedCity = this.value; let newBg = defaultBg;
-                if (selectedCity === 'jakarta') newBg = monasBg; else if (selectedCity === 'bandung') newBg = gedungSateBg; else if (selectedCity === 'surabaya') newBg = surabayaBg; else if (selectedCity === 'medan') newBg = medanBg; else if (selectedCity === 'palembang') newBg = palembangBg;
-                document.body.style.backgroundImage = `url('${newBg}')`;
-                if (isFirstSelection) { document.body.classList.add('background-changing'); isFirstSelection = false; setTimeout(() => { document.body.classList.remove('background-changing'); }, 800); }
-                updateDropdownFilters(); validateForm();
-            });
-            daerahHitungSelect.addEventListener('change', function() { updateDropdownFilters(); validateForm(); });
-            swapButton.addEventListener('click', function() {
-                const baselineValue = daerahBaselineSelect.value; const tujuanValue = daerahHitungSelect.value;
-                if (baselineValue && tujuanValue) { daerahBaselineSelect.value = tujuanValue; daerahHitungSelect.value = baselineValue; daerahBaselineSelect.dispatchEvent(new Event('change')); }
-            });
-            function validateForm() {
-                let allFilled = true;
-                requiredInputs.forEach(input => { if (!input.value || input.value === "") { allFilled = false; } });
-                submitButton.disabled = !allFilled;
-                if(allFilled) { tooltip.disable(); } else { tooltip.enable(); }
-            }
-            requiredInputs.forEach(input => { input.addEventListener('input', validateForm); });
+           
             form.addEventListener('submit', function(event) {
                 event.preventDefault(); 
+                
+                const baselineCity = daerahBaselineSelect.options[daerahBaselineSelect.selectedIndex].text;
+                const resultsData = mockResults[baselineCity.toLowerCase()] || [];
+
+                let tableRowsHTML = '';
+                resultsData.forEach(item => {
+                    tableRowsHTML += `
+                        <tr>
+                            <td>${item.city}</td>
+                            <td class="text-end">${item.recommended.toLocaleString('id-ID')}</td>
+                            <td class="text-end">${item.actual.toLocaleString('id-ID')}</td>
+                        </tr>
+                    `;
+                });
+
+                const finalHTML = `
+                    <div class="spreadsheet-container">
+                        <div class="spreadsheet-header">
+                            <span class="city-name">${baselineCity} <i class="fas fa-chevron-down fa-xs"></i></span>
+                            <span class="icon"><i class="fas fa-table"></i></span>
+                        </div>
+                        <table class="table spreadsheet-table">
+                            <thead>
+                                <tr>
+                                    <th>City</th>
+                                    <th class="text-end">Minimum Recommended Value</th>
+                                    <th class="text-end">Minimum Actual Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRowsHTML}
+                            </tbody>
+                        </table>
+                    </div>
+                     <div class="text-center mt-3">
+                        <button id="downloadButton" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-download me-1"></i>Download CSV
+                        </button>
+                    </div>
+                `;
+
+                hasilPrediksi.innerHTML = finalHTML;
+                hasilPrediksi.classList.add('show');
+                
+                document.getElementById('downloadButton').addEventListener('click', function() {
+                    downloadCSV(resultsData, `hasil-${baselineCity}.csv`);
+                });
             });
-            form.addEventListener('reset', function() {
-                hasilPrediksi.classList.remove('show'); setTimeout(validateForm, 0); document.body.style.backgroundImage = `url('${defaultBg}')`; isFirstSelection = true;
-                for (const option of daerahHitungSelect.options) { option.style.display = 'block'; }
-                for (const option of daerahBaselineSelect.options) { option.style.display = 'block'; }
-            });
+
+          
+            function downloadCSV(data, filename) {
+                const headers = ["City", "Minimum Recommended Value", "Minimum Actual Value"];
+                let csvContent = headers.map(h => `"${h}"`).join(';') + "\n";
+                
+                data.forEach(item => {
+                    const row = [item.city, item.recommended, item.actual].map(field => `"${field}"`).join(';');
+                    csvContent += row + "\n";
+                });
+
+                const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", filename);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+
+            function updateDropdownFilters() { /* ... */ }
+            daerahBaselineSelect.addEventListener('change', function() { /* ... */ });
+            daerahHitungSelect.addEventListener('change', function() { /* ... */ });
+            swapButton.addEventListener('click', function() { /* ... */ });
+            function validateForm() { /* ... */ }
+            requiredInputs.forEach(input => { /* ... */ });
+            form.addEventListener('reset', function() { /* ... */ });
+
+           
+            tsParticles.load("particles-container", {fpsLimit: 60, particles: {number: { value: 50, density: { enable: true, value_area: 800 } }, color: { value: "#64ffda" }, shape: { type: "circle" }, opacity: { value: 0.4, random: true }, size: { value: 2, random: true }, links: { enable: true, distance: 150, color: "#8892b0", opacity: 0.3, width: 1 }, move: { enable: true, speed: 1, direction: "none", out_mode: "out" }}, interactivity: {events: { onhover: { enable: true, mode: "repulse" } }, modes: { repulse: { distance: 100, duration: 0.4 } }}, detectRetina: true,});
+            startTourButton.addEventListener('click', function() { introJs().setOptions({ nextLabel: 'Lanjut →', prevLabel: '← Kembali', doneLabel: 'Selesai', exitOnOverlayClick: false, }).start(); });
+            function updateDropdownFilters() { const baselineValue = daerahBaselineSelect.value; const tujuanValue = daerahHitungSelect.value; for (const option of daerahHitungSelect.options) { option.style.display = (option.value === baselineValue && option.value) ? 'none' : 'block'; } for (const option of daerahBaselineSelect.options) { option.style.display = (option.value === tujuanValue && option.value) ? 'none' : 'block'; } }
+            daerahBaselineSelect.addEventListener('change', function() { const selectedCity = this.value; let newBg = defaultBg; if (selectedCity === 'jakarta') newBg = monasBg; else if (selectedCity === 'bandung') newBg = gedungSateBg; else if (selectedCity === 'surabaya') newBg = surabayaBg; else if (selectedCity === 'medan') newBg = medanBg; else if (selectedCity === 'palembang') newBg = palembangBg; document.body.style.backgroundImage = `url('${newBg}')`; if (isFirstSelection) { document.body.classList.add('background-changing'); isFirstSelection = false; setTimeout(() => { document.body.classList.remove('background-changing'); }, 800); } updateDropdownFilters(); validateForm(); });
+            daerahHitungSelect.addEventListener('change', function() { updateDropdownFilters(); validateForm(); });
+            swapButton.addEventListener('click', function() { const baselineValue = daerahBaselineSelect.value; const tujuanValue = daerahHitungSelect.value; if (baselineValue && tujuanValue) { daerahBaselineSelect.value = tujuanValue; daerahHitungSelect.value = baselineValue; daerahBaselineSelect.dispatchEvent(new Event('change')); } });
+            function validateForm() { let allFilled = true; requiredInputs.forEach(input => { if (!input.value || input.value === "") { allFilled = false; } }); submitButton.disabled = !allFilled; if(allFilled) { tooltip.disable(); } else { tooltip.enable(); } }
+            requiredInputs.forEach(input => { input.addEventListener('input', validateForm); });
+            form.addEventListener('reset', function() { hasilPrediksi.classList.remove('show'); setTimeout(validateForm, 0); document.body.style.backgroundImage = `url('${defaultBg}')`; isFirstSelection = true; for (const option of daerahHitungSelect.options) { option.style.display = 'block'; } for (const option of daerahBaselineSelect.options) { option.style.display = 'block'; } });
         });
     </script>
 </body>
